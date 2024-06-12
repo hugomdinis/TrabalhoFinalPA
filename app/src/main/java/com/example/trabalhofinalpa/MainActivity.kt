@@ -24,6 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.trabalhofinalpa.Data.Drink
 import com.example.trabalhofinalpa.Data.Drink.Companion.drinks
 import com.example.trabalhofinalpa.ui.theme.TrabalhoFinalPATheme
@@ -37,14 +41,29 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    NightOutLayout()
+                    SetupNavigation()
                 }
             }
         }
     }
 
     @Composable
-    fun NightOutLayout() {
+    fun SetupNavigation(){
+        val navController = rememberNavController()
+
+        NavHost(navController = navController, startDestination = "home"){
+            composable("home"){
+                NightOutLayout(navController)
+            }
+            composable("drinkQuantity/{drinkName}"){backStackEntry ->
+                val drinkName = backStackEntry.arguments?.getString("drinkName") ?: ""
+                DrinkScreen(drinkName = drinkName)
+            }
+        }
+    }
+
+    @Composable
+    fun NightOutLayout(navController: NavHostController) {
         LazyColumn (
             modifier = Modifier
                 .padding(40.dp)
@@ -53,15 +72,15 @@ class MainActivity : ComponentActivity() {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ){
             items(drinks) {drink ->
-                DrinkButton(drink)
+                DrinkButton(drink, navController)
             }
         }
     }
 
     @Composable
-    fun DrinkButton(drink: Drink) {
+    fun DrinkButton(drink: Drink, navController: NavHostController) {
         Button(
-            onClick = { /*TODO*/ },
+            onClick = { navController.navigate("drinkQuantity/${drink.name}") },
             modifier = Modifier
                 .size(200.dp)
                 .padding(16.dp),
@@ -82,11 +101,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @Composable
+    fun DrinkScreen(drinkName: String) {
+
+    }
+
     @Preview(showBackground = true)
     @Composable
     fun NightOutPreview() {
         TrabalhoFinalPATheme {
-            NightOutLayout()
+            NightOutLayout(rememberNavController())
         }
     }
 }

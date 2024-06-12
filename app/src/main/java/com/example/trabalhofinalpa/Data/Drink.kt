@@ -10,6 +10,7 @@ data class Drink(val name: String, val imageRes: Int){
         val drinks = listOf(
             Drink("Beer", R.drawable.beer_mug),
             Drink("Martini", R.drawable.martini),
+            Drink("Shot", R.drawable.shot),
             Drink("Wine", R.drawable.copodevinho),
             Drink("Margarita", R.drawable.margarita),
             Drink("Whiskey", R.drawable.whiskey),
