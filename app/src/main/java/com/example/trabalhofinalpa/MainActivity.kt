@@ -54,30 +54,31 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun SetupNavigation(){
+    fun SetupNavigation() {
         val navController = rememberNavController()
 
-        NavHost(navController = navController, startDestination = "home"){
-            composable("home"){
+        NavHost(navController = navController, startDestination = "home") {
+            composable("home") {
                 NightOutLayout(navController)
             }
-            composable("drinkQuantity/{drinkName}"){backStackEntry ->
+            composable("drinkQuantity/{drinkName}/{imageRes}") { backStackEntry ->
                 val drinkName = backStackEntry.arguments?.getString("drinkName") ?: ""
-                DrinkScreen(drinkName = drinkName)
+                val imageRes = backStackEntry.arguments?.getString("imageRes")?.toIntOrNull() ?: 0
+                DrinkScreen(drinkName = drinkName, imageRes = imageRes)
             }
         }
     }
 
     @Composable
     fun NightOutLayout(navController: NavHostController) {
-        LazyColumn (
+        LazyColumn(
             modifier = Modifier
                 .padding(40.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
-        ){
-            items(drinks) {drink ->
+        ) {
+            items(drinks) { drink ->
                 DrinkButton(drink, navController)
             }
         }
@@ -86,16 +87,18 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DrinkButton(drink: Drink, navController: NavHostController) {
         Button(
-            onClick = { navController.navigate("drinkQuantity/${drink.name}") },
+            onClick = {
+                navController.navigate("drinkQuantity/${drink.name}/${drink.imageRes}")
+            },
             modifier = Modifier
                 .size(200.dp)
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Column (
+            Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
-            ){
+            ) {
                 Image(
                     painter = painterResource(id = drink.imageRes),
                     contentDescription = drink.name,
@@ -107,9 +110,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
     @Composable
-    fun DrinkScreen(drinkName: String) {
+    fun DrinkScreen(drinkName: String, imageRes: Int) {
         var quantity by remember { mutableStateOf("") }
         var unitPrice by remember { mutableStateOf("") }
 
@@ -121,12 +123,12 @@ class MainActivity : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.beer_mug), // Substitua pela imagem correspondente ao drink
+                painter = painterResource(id = imageRes),
                 contentDescription = drinkName,
                 modifier = Modifier.size(200.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Quantity of $drinkName")
+            Text(text = " $drinkName")
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
                 value = quantity,
@@ -156,7 +158,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DrinkScreenPreview() {
         TrabalhoFinalPATheme {
-            DrinkScreen(drinkName = "Beer")
+            DrinkScreen(drinkName = "Beer", imageRes = R.drawable.beer_mug)
         }
     }
 }
