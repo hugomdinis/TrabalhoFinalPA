@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -148,7 +149,9 @@ class MainActivity : ComponentActivity() {
                     TotalCost = calculateTotal(quantity, unitPrice)
                 },
                 label = { Text(text = "Quantity") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next),
                 modifier = Modifier
                     .width(200.dp)
                     .padding(bottom = 20.dp)
@@ -160,7 +163,9 @@ class MainActivity : ComponentActivity() {
                     TotalCost = calculateTotal(quantity, unitPrice)
                 },
                 label = { Text(text = "Unit Price") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done),
                 modifier = Modifier.width(200.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
