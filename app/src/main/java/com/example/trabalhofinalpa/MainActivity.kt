@@ -28,8 +28,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -114,6 +116,13 @@ class MainActivity : ComponentActivity() {
     fun DrinkScreen(drinkName: String, imageRes: Int) {
         var quantity by remember { mutableStateOf("") }
         var unitPrice by remember { mutableStateOf("") }
+        var TotalCost by remember { mutableStateOf(0.0) }
+
+        fun calculateTotal(quantidade:String, price: String): Double {
+            val quant = quantidade.toDoubleOrNull() ?: 0.0
+            val pric = price.toDoubleOrNull() ?: 0.0
+            return quant * pric
+        }
 
         Column(
             modifier = Modifier
@@ -132,16 +141,29 @@ class MainActivity : ComponentActivity() {
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
                 value = quantity,
-                onValueChange = { quantity = it },
+                onValueChange = {
+                    quantity = it
+                    TotalCost = calculateTotal(quantity, unitPrice)
+                },
                 label = { Text(text = "Quantity") },
-                modifier = Modifier.width(200.dp)
+                modifier = Modifier
+                    .width(200.dp)
                     .padding(bottom = 20.dp)
             )
             TextField(
                 value = unitPrice,
-                onValueChange = { unitPrice = it },
+                onValueChange = {
+                    unitPrice = it
+                    TotalCost = calculateTotal(quantity, unitPrice)
+                },
                 label = { Text(text = "Unit Price") },
                 modifier = Modifier.width(200.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Total: $TotalCost",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     }
