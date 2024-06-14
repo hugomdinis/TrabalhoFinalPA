@@ -4,11 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -41,9 +43,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.trabalhofinalpa.Data.Drink
 import com.example.trabalhofinalpa.Data.Drink.Companion.drinks
+import com.example.trabalhofinalpa.ui.theme.DrinkViewModel
 import com.example.trabalhofinalpa.ui.theme.TrabalhoFinalPATheme
 
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: DrinkViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -64,18 +70,26 @@ class MainActivity : ComponentActivity() {
 
         NavHost(navController = navController, startDestination = "home") {
             composable("home") {
-                NightOutLayout(navController)
+                NightOutLayout(navController, viewModel)
             }
             composable("drinkQuantity/{drinkName}/{imageRes}") { backStackEntry ->
                 val drinkName = backStackEntry.arguments?.getString("drinkName") ?: ""
                 val imageRes = backStackEntry.arguments?.getString("imageRes")?.toIntOrNull() ?: 0
-                DrinkScreen(drinkName = drinkName, imageRes = imageRes)
+                DrinkScreen(drinkName = drinkName, imageRes = imageRes, viewModel = viewModel)
             }
         }
     }
 
     @Composable
-    fun NightOutLayout(navController: NavHostController) {
+    fun NightOutLayout(navController: NavHostController, viewModel: DrinkViewModel) {
+
+        Text(
+            text = "Total Amount: ${viewModel.totalAmount}",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 16.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
         LazyColumn(
             modifier = Modifier
                 .padding(40.dp)
@@ -86,6 +100,7 @@ class MainActivity : ComponentActivity() {
             items(drinks) { drink ->
                 DrinkButton(drink, navController)
             }
+
         }
     }
 
@@ -116,7 +131,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun DrinkScreen(drinkName: String, imageRes: Int) {
+    fun DrinkScreen(drinkName: String, imageRes: Int, viewModel: DrinkViewModel) {
         var quantity by remember { mutableStateOf("") }
         var unitPrice by remember { mutableStateOf("") }
         var TotalCost by remember { mutableStateOf(0.0) }
@@ -174,6 +189,17 @@ class MainActivity : ComponentActivity() {
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
+            Button(
+                onClick = {
+                    val cost = calculateTotal(quantity, unitPrice)
+                    viewModel.addToTotal(cost)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            ) {
+                Text(text = "Save")
+            }
         }
     }
 
@@ -181,7 +207,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun NightOutPreview() {
         TrabalhoFinalPATheme {
-            NightOutLayout(rememberNavController())
+            NightOutLayout(rememberNavController(), viewModel = viewModel)
         }
     }
 
@@ -189,7 +215,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DrinkScreenPreview() {
         TrabalhoFinalPATheme {
-            DrinkScreen(drinkName = "Beer", imageRes = R.drawable.beer_mug)
+            DrinkScreen(drinkName = "Beer", imageRes = R.drawable.beer_mug, viewModel = viewModel)
         }
     }
 }
