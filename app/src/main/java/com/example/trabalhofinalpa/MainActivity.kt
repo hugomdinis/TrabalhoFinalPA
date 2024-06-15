@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -75,7 +76,7 @@ class MainActivity : ComponentActivity() {
             composable("drinkQuantity/{drinkName}/{imageRes}") { backStackEntry ->
                 val drinkName = backStackEntry.arguments?.getString("drinkName") ?: ""
                 val imageRes = backStackEntry.arguments?.getString("imageRes")?.toIntOrNull() ?: 0
-                DrinkScreen(drinkName = drinkName, imageRes = imageRes, viewModel = viewModel)
+                DrinkScreen(drinkName = drinkName, imageRes = imageRes, viewModel = viewModel, navController = navController)
             }
         }
     }
@@ -131,10 +132,10 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun DrinkScreen(drinkName: String, imageRes: Int, viewModel: DrinkViewModel) {
+    fun DrinkScreen(drinkName: String, imageRes: Int, viewModel: DrinkViewModel, navController: NavHostController) {
         var quantity by remember { mutableStateOf("") }
         var unitPrice by remember { mutableStateOf("") }
-        var TotalCost by remember { mutableStateOf(0.0) }
+        var totalCost by remember { mutableDoubleStateOf(0.0) }
 
         fun calculateTotal(quantidade:String, price: String): Double {
             val quant = quantidade.toDoubleOrNull() ?: 0.0
@@ -161,7 +162,7 @@ class MainActivity : ComponentActivity() {
                 value = quantity,
                 onValueChange = {
                     quantity = it
-                    TotalCost = calculateTotal(quantity, unitPrice)
+                    totalCost = calculateTotal(quantity, unitPrice)
                 },
                 label = { Text(text = "Quantity") },
                 keyboardOptions = KeyboardOptions(
@@ -175,7 +176,7 @@ class MainActivity : ComponentActivity() {
                 value = unitPrice,
                 onValueChange = {
                     unitPrice = it
-                    TotalCost = calculateTotal(quantity, unitPrice)
+                    totalCost = calculateTotal(quantity, unitPrice)
                 },
                 label = { Text(text = "Unit Price") },
                 keyboardOptions = KeyboardOptions(
@@ -185,7 +186,7 @@ class MainActivity : ComponentActivity() {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Total: $TotalCost",
+                text = "Total: $totalCost",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -193,6 +194,7 @@ class MainActivity : ComponentActivity() {
                 onClick = {
                     val cost = calculateTotal(quantity, unitPrice)
                     viewModel.addToTotal(cost)
+                    navController.navigate("home")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -215,7 +217,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DrinkScreenPreview() {
         TrabalhoFinalPATheme {
-            DrinkScreen(drinkName = "Beer", imageRes = R.drawable.beer_mug, viewModel = viewModel)
+            DrinkScreen(drinkName = "Beer", imageRes = R.drawable.beer_mug, viewModel = viewModel, navController = rememberNavController())
         }
     }
 }
