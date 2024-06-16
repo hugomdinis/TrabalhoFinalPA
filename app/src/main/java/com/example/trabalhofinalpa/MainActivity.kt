@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -83,13 +82,6 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun NightOutLayout(navController: NavHostController, viewModel: DrinkViewModel) {
-
-        Text(
-            text = "Total Amount: ${viewModel.totalAmount}",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 16.dp)
-        )
         Spacer(modifier = Modifier.width(8.dp))
         LazyColumn(
             modifier = Modifier
@@ -98,6 +90,14 @@ class MainActivity : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            item{
+                Text(
+                    text = "Total Amount: ${viewModel.totalAmount}",
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(30.dp)
+                )
+            }
             items(drinks) { drink ->
                 DrinkButton(drink, navController)
             }
@@ -135,12 +135,14 @@ class MainActivity : ComponentActivity() {
     fun DrinkScreen(drinkName: String, imageRes: Int, viewModel: DrinkViewModel, navController: NavHostController) {
         var quantity by remember { mutableStateOf("") }
         var unitPrice by remember { mutableStateOf("") }
+        var tipPercentage by remember { mutableStateOf("") }
         var totalCost by remember { mutableDoubleStateOf(0.0) }
 
-        fun calculateTotal(quantidade:String, price: String): Double {
+        fun calculateTotal(quantidade:String, price: String, tip:String): Double {
             val quant = quantidade.toDoubleOrNull() ?: 0.0
             val pric = price.toDoubleOrNull() ?: 0.0
-            return quant * pric
+            val tipPercent = tip.toDoubleOrNull() ?: 0.0
+            return quant * pric * (1 + tipPercent / 100)
         }
 
         Column(
@@ -162,7 +164,7 @@ class MainActivity : ComponentActivity() {
                 value = quantity,
                 onValueChange = {
                     quantity = it
-                    totalCost = calculateTotal(quantity, unitPrice)
+                    totalCost = calculateTotal(quantity, unitPrice, tipPercentage)
                 },
                 label = { Text(text = "Quantity") },
                 keyboardOptions = KeyboardOptions(
@@ -176,13 +178,30 @@ class MainActivity : ComponentActivity() {
                 value = unitPrice,
                 onValueChange = {
                     unitPrice = it
-                    totalCost = calculateTotal(quantity, unitPrice)
+                    totalCost = calculateTotal(quantity, unitPrice, tipPercentage)
                 },
                 label = { Text(text = "Unit Price") },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next),
+                modifier = Modifier
+                    .width(200.dp)
+                    .padding(bottom = 20.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            TextField(
+                value = tipPercentage,
+                onValueChange = {
+                    tipPercentage = it
+                    totalCost = calculateTotal(quantity, unitPrice, tipPercentage)
+                },
+                label = { Text(text = "Tip Percentage")},
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done),
-                modifier = Modifier.width(200.dp)
+                modifier = Modifier
+                    .width(200.dp)
+                    .padding(bottom = 20.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -192,12 +211,13 @@ class MainActivity : ComponentActivity() {
             )
             Button(
                 onClick = {
-                    val cost = calculateTotal(quantity, unitPrice)
+                    val cost = calculateTotal(quantity, unitPrice, tipPercentage)
                     viewModel.addToTotal(cost)
                     navController.navigate("home")
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .width(200.dp)
+                    .height(70.dp)
                     .padding(top = 16.dp)
             ) {
                 Text(text = "Save")
