@@ -92,8 +92,8 @@ class MainActivity : ComponentActivity() {
         ) {
             item{
                 Text(
-                    text = "Total Amount: ${viewModel.totalAmount}",
-                    fontSize = 30.sp,
+                    text = "Total Amount: ${String.format("%.2f", viewModel.totalAmount)}",
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(30.dp)
                 )
@@ -205,7 +205,7 @@ class MainActivity : ComponentActivity() {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Total: $totalCost",
+                text = "Total: ${String.format("%.2f", totalCost)}",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
